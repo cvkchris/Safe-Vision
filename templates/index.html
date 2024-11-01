@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crowd Surveillance - SafeVision</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>SafeVision - Crowd Surveillance</h1>
+            <p>Real-time video analysis for enhanced security and peace of mind</p>
+        </header>
+
+        <section class="upload-section">
+            <h2>Upload a Video for Analysis</h2>
+            <form action="{{ url_for('upload_video') }}" method="post" enctype="multipart/form-data">
+                <input type="file" name="file" required>
+                <button type="submit">Upload Video</button>
+            </form>
+        </section>
+
+        <section class="live-feed-section">
+            <h2>Monitor Live Feed</h2>
+            <a href="{{ url_for('live_feed') }}" class="live-feed-button">Check Live Feed</a>
+        </section>
+    </div>
+</body>
+</html>

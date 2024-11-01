@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Feed - Crowd Surveillance</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='live.css') }}">
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</head>
+<body>
+    <div class="live-feed-container">
+        <header>
+            <h2>Live Feed Monitoring</h2>
+            <p>Monitoring real-time video feed for any unusual activity</p>
+        </header>
+        
+        <div class="video-container">
+            <section id="live-video" class="video-section">
+                <!-- Display live feed video from the /video_feed route -->
+                <img src="{{ url_for('video_feed') }}" alt="Live Video Feed" id="video-feed">
+                <div id="loading-spinner" class="spinner"></div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // Send a request to stop the camera when the user leaves the page
+        window.addEventListener('beforeunload', function () {
+            fetch("{{ url_for('stop_camera') }}", { method: 'POST' });
+        });
+    </script>
+</body>
+</html>

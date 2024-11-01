@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Video Analysis Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="result-container">
+        <h2>Video Analysis Result</h2>
+        
+        <div class="video-section">
+            <video controls autoplay>
+                <source src="{{ url_for('static', filename='uploads/' + video_file) }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+        
+        <div class="prediction-info">
+            <h3>Prediction Summary</h3>
+            <p>The video shows a <strong>real-time analysis of violence</strong> based on the uploaded video. Look for the text annotations in the video player for details.</p>
+        </div>
+    </div>
+</body>
+</html>
