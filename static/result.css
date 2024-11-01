@@ -1,0 +1,33 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.result-container {
+    max-width: 80%;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.video-section {
+    margin: 20px 0;
+}
+
+video {
+    width: 100%;
+    max-height: 500px;
+    border-radius: 8px;
+}
+
+.prediction-info {
+    font-size: 1.1em;
+    color: #555;
+}
