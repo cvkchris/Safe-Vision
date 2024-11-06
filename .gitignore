@@ -25,3 +25,6 @@ build/
 
 # uploads
 uploads/
+
+# models
+models/
