@@ -30,12 +30,24 @@ def upload_video():
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
     file.save(file_path)
 
-    # Call your model’s prediction function here
-    # prediction = violence_predictor.predict(file_path)
-    # return render_template('result.html', prediction=prediction)
+    # Call your model’s prediction function
+    prediction = process_video(file_path)
+    return render_template('results.html', prediction=prediction, video_file=file.filename)
 
-    return redirect(url_for('index'))
 
+def generate_frames():
+    while True:
+        success, frame = camera.read()  # Capture frame-by-frame
+        if not success:
+            break
+        else:
+            # Encode the frame in JPEG format
+            ret, buffer = cv2.imencode('.jpg', frame)
+            frame = buffer.tobytes()
+
+            # Use Flask to yield a byte stream of the frame in multipart format
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 @app.route('/video_feed')
 def video_feed():
