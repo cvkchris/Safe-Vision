@@ -44,7 +44,7 @@ def augment_frame(frame):
     frame = cv2.resize(frame, (224, 224))
     return frame
 
-def predict_violence(video_path, model, threshold=0.5):
+def predict_violence(video_path, model=tcn_model, threshold=0.5):
     cap = cv2.VideoCapture(video_path)
     violence_count = 0
     non_violence_count = 0
