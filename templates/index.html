@@ -18,7 +18,7 @@
             <h2>Upload a Video for Analysis</h2>             
                 <form method="POST" class="row row-cols-lg-auto g-3 justify-content-center align-items-center mb-4 pb-2" action="{{ url_for('upload_video') }}" enctype="multipart/form-data">
                     <div class="input-group mt-3">
-                        <input type="file" class="form-control" name="file" required/>
+                        <input type="file" class="form-control" name="file" accept=".mp4" required/>
                         <div class="input-group-append">
                             <button class="btn btn-primary">Upload Video</button>
                         </div>
