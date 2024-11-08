@@ -2,8 +2,10 @@ from flask import Flask, render_template, request, redirect, url_for, flash, Res
 import cv2
 import os
 import threading
+# from tcn import predict_violence
+import inceptionv3 as inception
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static")
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.secret_key = 'your_secret_key'  # For flash messaging
 
@@ -12,6 +14,10 @@ camera = cv2.VideoCapture(0)  # 0 is typically the default camera
 camera = None  # Global variable to hold the camera object
 camera_lock = threading.Lock() 
 
+ALLOWED_EXTENSIONS = ['mp4']
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower()
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -19,20 +25,23 @@ def index():
 @app.route('/upload', methods=['POST'])
 def upload_video():
     if 'file' not in request.files:
-        flash('No file part')
+        flash('No Video File Found')
         return redirect(request.url)
 
     file = request.files['file']
     if file.filename == '':
-        flash('No selected file')
+        flash('No file selected')
         return redirect(request.url)
+    
+    if file and allowed_file(file.filename):
+        file_path = "static/videos/" + file.filename
+        file.save(file_path)
 
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-    file.save(file_path)
-
-    # Call your model’s prediction function
-    prediction = process_video(file_path)
-    return render_template('results.html', prediction=prediction, video_file=file.filename)
+        prediction, output_name = inception.predict_violence(video_path=file_path, file_name=file.filename)
+        return render_template('results.html', prediction=prediction, mimetype='video/mp4', video_name = output_name)
+    else:
+        flash('Invalid File Type')
+        return redirect(request.url)
 
 
 def generate_frames():
@@ -83,7 +92,6 @@ def stop_camera():
 
 @app.route('/live')
 def live_feed():
-    # Render the live feed template
     return render_template('live.html')
 
 if __name__ == "__main__":
