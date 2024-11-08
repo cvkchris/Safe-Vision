@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 import tensorflow as tf
+from moviepy.editor import VideoFileClip
+import os
 
 
 # Load the pre-trained model
@@ -9,6 +11,10 @@ inception_model = tf.keras.models.load_model(r'model\inceptionV3-model.h5')
 # Model input image size
 image_size = (224, 224)
 
+def reencode_video(input_path, output_path):
+    clip = VideoFileClip(input_path)
+    clip.write_videofile(output_path, codec="libx264")
+
 # Function to preprocess and predict violence for video frames and save output video
 def predict_violence(video_path, file_name, model=inception_model, threshold=0.5):
     cap = cv2.VideoCapture(video_path)
@@ -16,12 +22,13 @@ def predict_violence(video_path, file_name, model=inception_model, threshold=0.5
     frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps = cap.get(cv2.CAP_PROP_FPS)
 
+    temp_path = r'uploads\\temp_output.mp4'
     output_path = r'static\\videos\\output.mp4'
     output_name = r'output.mp4'
     
     # Define VideoWriter to save the output video
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    out = cv2.VideoWriter(output_path, fourcc, fps, (frame_width, frame_height))
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    out = cv2.VideoWriter(temp_path, fourcc, fps, (frame_width, frame_height))
 
     frame_predictions = []
     
@@ -56,6 +63,13 @@ def predict_violence(video_path, file_name, model=inception_model, threshold=0.5
     out.release()
     cv2.destroyAllWindows()
 
+    # Re-encode video for compatibility
+    reencode_video(temp_path, output_path)  # Ensure compatibility with browsers
+
+    # Delete temporary file after re-encoding
+    if os.path.exists(temp_path):
+        os.remove(temp_path)
+
     # Determine overall classification based on average prediction
     average_prediction = np.mean(frame_predictions)
     if average_prediction >= threshold:
@@ -63,5 +77,4 @@ def predict_violence(video_path, file_name, model=inception_model, threshold=0.5
     else:
         print("Overall Prediction: Non-Violence")
 
-    return 1 if average_prediction >=threshold else 0, output_name
-
+    return 1 if average_prediction >= threshold else 0, output_name
