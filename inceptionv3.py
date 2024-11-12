@@ -3,6 +3,7 @@ import numpy as np
 import tensorflow as tf
 from moviepy.editor import VideoFileClip
 import os
+import requests
 
 
 # Load the pre-trained model
@@ -10,6 +11,16 @@ inception_model = tf.keras.models.load_model(r'model\inceptionV3-model.h5')
 
 # Model input image size
 image_size = (224, 224)
+
+def send_telegram_message():
+    bot_token = '7465229273:AAGAQllb6Z9pu4KjId3WGhsCTE3ywlVjLlM'
+    url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
+    data = {
+        'chat_id': '1398254880',
+        'text': 'violence-detected'
+    }
+    response = requests.post(url, data=data)
+    return response.json()
 
 def reencode_video(input_path, output_path):
     clip = VideoFileClip(input_path)
@@ -74,6 +85,7 @@ def predict_violence(video_path, file_name, model=inception_model, threshold=0.5
     average_prediction = np.mean(frame_predictions)
     if average_prediction >= threshold:
         print("Overall Prediction: Violence")
+        send_telegram_message()
     else:
         print("Overall Prediction: Non-Violence")
 
