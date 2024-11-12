@@ -9,10 +9,14 @@ app = Flask(__name__, static_folder="static")
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.secret_key = 'your_secret_key'  # For flash messaging
 
+application = app
+
 # Initialize the video capture from the camera
 camera = cv2.VideoCapture(0)  # 0 is typically the default camera
 camera = None  # Global variable to hold the camera object
 camera_lock = threading.Lock() 
+
+
 
 ALLOWED_EXTENSIONS = ['mp4']
 def allowed_file(filename):
@@ -43,7 +47,6 @@ def upload_video():
         flash('Invalid File Type')
         return redirect(request.url)
 
-
 def generate_frames():
     while True:
         success, frame = camera.read()  # Capture frame-by-frame
@@ -57,16 +60,9 @@ def generate_frames():
             # Use Flask to yield a byte stream of the frame in multipart format
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            
 
-@app.route('/video_feed')
-def video_feed():
-    global camera
-    # Start the camera only if it isn't already started
-    with camera_lock:
-        if camera is None:
-            camera = cv2.VideoCapture(0)  # Open the camera
-
-    def gen_frames():
+def gen_frames():
         global camera
         while camera.isOpened():
             success, frame = camera.read()
@@ -77,6 +73,14 @@ def video_feed():
                 frame = buffer.tobytes()
                 yield (b'--frame\r\n'
                        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+@app.route('/video_feed')
+def video_feed():
+    global camera
+    # Start the camera only if it isn't already started
+    with camera_lock:
+        if camera is None:
+            camera = cv2.VideoCapture(0)  # Open the camera
     
     return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
@@ -95,4 +99,4 @@ def live_feed():
     return render_template('live.html')
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    application.run(port = 5000, debug=True)
