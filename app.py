@@ -45,12 +45,13 @@ def generate_frames():
             cv2.putText(frame, f'Prediction: {label}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX,
                         1, color, 2, cv2.LINE_AA)
             
-            if label == "Violence":
-                inception.send_telegram_message()
-
             # Encode frame as JPEG
             ret, buffer = cv2.imencode('.jpg', frame)
             frame = buffer.tobytes()
+
+            if label == "Violence":
+                inception.send_telegram_message()
+                inception.send_telegram_image(frame)
 
             # Use Flask's streaming response
             yield (b'--frame\r\n'
