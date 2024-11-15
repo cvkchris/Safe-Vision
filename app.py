@@ -54,6 +54,27 @@ def generate_frames():
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
+def gen_frames(video_path):
+    video_capture = cv2.VideoCapture(video_path)
+    while video_capture.isOpened():
+        success, frame = video_capture.read()
+        if not success:
+            break
+
+        # Encode frame in JPEG format
+        ret, buffer = cv2.imencode('.jpg', frame)
+        if not ret:
+            break
+
+        # Convert frame to bytes
+        frame_bytes = buffer.tobytes()
+
+        # Yield frame with multipart headers
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+
+    video_capture.release()
+
 # API Endpoints
 
 @app.route('/api/upload', methods=['POST'])
@@ -70,9 +91,9 @@ def upload_video():
         file.save(file_path)
 
         # Prediction on uploaded video
-        prediction, output_name = inception.predict_violence(video_path=file_path, file_name=file.filename)
-        
-        return jsonify({'prediction': prediction, 'output_video': output_name}), 200
+        prediction, output_path = inception.predict_violence(video_path=file_path, file_name=file.filename)
+
+        return jsonify({'prediction': prediction, 'video_stream_url': '/api/video_static'}), 200
     else:
         return jsonify({'error': 'Invalid file type'}), 400
 
@@ -85,6 +106,13 @@ def video_feed():
             camera.open(0)  # Reinitialize the camera if not already started
     
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/api/video_static', methods=['GET'])
+def video_feed_static():
+    video_path = r'uploads\output.mp4'  # Update this path to your video file
+    return Response(gen_frames(video_path),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
 
 @app.route('/api/stop_camera', methods=['POST'])
 def stop_camera():

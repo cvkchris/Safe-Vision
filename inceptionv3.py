@@ -23,8 +23,22 @@ def send_telegram_message():
     return response.json()
 
 def reencode_video(input_path, output_path):
+    # Load the video
     clip = VideoFileClip(input_path)
-    clip.write_videofile(output_path, codec="libx264")
+    
+    # Optional: Resize the video if needed for better compatibility
+    clip = clip.resize(height=720)  # Example to resize to height 720px, keeping aspect ratio
+    
+    # Write the video using H.264 codec for video and AAC for audio
+    clip.write_videofile(
+        output_path, 
+        codec='libx264',  # Use libx264 codec (H.264)
+        audio_codec='aac',  # Use AAC codec for audio
+        threads=4,  # Using multiple threads for faster processing
+        preset='ultrafast',  # Optionally, choose a preset (ultrafast is fastest)
+        ffmpeg_params=['-movflags', '+faststart']  # Optimize for streaming (fast start)
+    )
+
 
 # Function to preprocess and predict violence for video frames and save output video
 def predict_violence(video_path, file_name, model=inception_model, threshold=0.5):
@@ -89,4 +103,4 @@ def predict_violence(video_path, file_name, model=inception_model, threshold=0.5
     else:
         print("Overall Prediction: Non-Violence")
 
-    return 1 if average_prediction >= threshold else 0, output_name
+    return 'violence' if average_prediction >= threshold else 'Non-Violence', output_path
