@@ -3,8 +3,7 @@ import numpy as np
 import tensorflow as tf
 from moviepy.editor import VideoFileClip
 import os
-import requests
-
+from telegram import send_telegram_message
 
 # Load the pre-trained model
 inception_model = tf.keras.models.load_model(r'model\inceptionV3-model.h5')
@@ -12,27 +11,6 @@ inception_model = tf.keras.models.load_model(r'model\inceptionV3-model.h5')
 # Model input image size
 image_size = (224, 224)
 
-def send_telegram_message():
-    bot_token = '7465229273:AAGAQllb6Z9pu4KjId3WGhsCTE3ywlVjLlM'
-    url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
-    data = {
-        'chat_id': '1398254880',
-        'text': 'violence-detected'
-    }
-    response = requests.post(url, data=data)
-    return response.json()
-
-def send_telegram_image(image_file):
-    bot_token = '7465229273:AAGAQllb6Z9pu4KjId3WGhsCTE3ywlVjLlM'
-    url = f'https://api.telegram.org/bot{bot_token}/sendPhoto'
-    data = {
-        'chat_id': '1398254880'
-    }
-    files = {
-        'photo': image_file
-    }
-    response = requests.post(url, data=data, files=files)
-    return response.json()
 
 def reencode_video(input_path, output_path):
     clip = VideoFileClip(input_path)
