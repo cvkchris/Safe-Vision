@@ -16,14 +16,18 @@
 
         <section class="upload-section">
             <h2>Upload a Video for Analysis</h2>             
-                <form method="POST" class="row row-cols-lg-auto g-3 justify-content-center align-items-center mb-4 pb-2" action="{{ url_for('upload_video') }}" enctype="multipart/form-data">
-                    <div class="input-group mt-3">
-                        <input type="file" class="form-control" name="file" accept=".mp4" required/>
-                        <div class="input-group-append">
-                            <button class="btn btn-primary">Upload Video</button>
-                        </div>
+            <form method="POST" class="row row-cols-lg-auto g-3 justify-content-center align-items-center mb-4 pb-2" action="{{ url_for('predict_inception') }}" enctype="multipart/form-data">
+                <div class="input-group mt-3">
+                    <input type="file" class="form-control" name="file" accept=".mp4" required id="file-input"/>
+                    <br>
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="submit" formaction="{{ url_for('predict_inception') }}">Use InceptionV3</button>
+                        <button class="btn btn-primary" type="submit" formaction="{{ url_for('predict_tcn') }}">Use TCN</button>
                     </div>
-                </form>
+                </div>
+            </form>
+            
+           
         </section>
 
         <section class="live-feed-section">
@@ -31,5 +35,23 @@
             <a href="{{ url_for('live') }}" class="live-feed-button">Check Live Feed</a>
         </section>
     </div>
+
+    <script>
+        // Show model selection buttons after uploading the video
+        const fileInput = document.getElementById('file-input');
+        const modelChoice = document.getElementById('model-choice');
+        const filePathInput = document.getElementById('file-path');
+        const filePathInput2 = document.getElementById('file-path-2');
+        
+        fileInput.addEventListener('change', function(event) {
+            if (event.target.files.length > 0) {
+                // Enable model choice section
+                modelChoice.classList.remove('d-none');
+                // Store the file path in hidden inputs
+                filePathInput.value = URL.createObjectURL(event.target.files[0]);
+                filePathInput2.value = URL.createObjectURL(event.target.files[0]);
+            }
+        });
+    </script>
 </body>
 </html>

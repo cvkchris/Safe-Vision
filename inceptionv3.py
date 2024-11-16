@@ -17,7 +17,7 @@ def reencode_video(input_path, output_path):
     clip.write_videofile(output_path, codec="libx264")
 
 # Function to preprocess and predict violence for video frames and save output video
-def predict_violence(video_path, file_name, model=inception_model, threshold=0.5):
+def predict_violence(video_path, model=inception_model, threshold=0.5):
     cap = cv2.VideoCapture(video_path)
     frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))

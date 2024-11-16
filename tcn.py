@@ -7,6 +7,8 @@ from moviepy.editor import VideoFileClip
 import os
 from telegram import send_telegram_message
 
+# Load the trained model
+tcn_model = tf.keras.models.load_model(r'model\\SafeVision_tcn_model.h5')
 
 # Initialize MediaPipe Pose model and drawing utilities
 mp_pose = mp.solutions.pose
@@ -52,7 +54,7 @@ def reencode_video(input_path, output_path):
     clip = VideoFileClip(input_path)
     clip.write_videofile(output_path, codec="libx264")
 
-def predict_violence(video_path, model, threshold=0.5):
+def predict_violence(video_path, model = tcn_model , threshold=0.5):
     cap = cv2.VideoCapture(video_path)
     violence_count = 0
     non_violence_count = 0
@@ -86,17 +88,25 @@ def predict_violence(video_path, model, threshold=0.5):
 
         # Predict violence probability
         prediction = model.predict(frame_array)[0][0]
+
+        color = (0, 0, 255)
        
         # Display violence detection result on frame
         if prediction >= threshold:
-            label = f"Violence Detected (Score: {prediction:.2f})"
+            label = f"Violence"
             violence_count += 1
+            color = (0, 0, 255)
         else:
-            label = f"Non-Violence Detected (Score: {prediction:.2f})"
+            label = f"Non-Violence"
             non_violence_count += 1
+            color = (0, 255, 0)
 
         # Overlay the prediction label on the frame
-        cv2.putText(frame_with_pose, label, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+        cv2.putText(frame_with_pose, f"{label} Detected : {prediction:.2f}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
+
+        # Draw a bounding box if violence is detected
+        if label == "Violence":
+            cv2.rectangle(frame, (10, 10), (frame_width - 10, frame_height - 10), color, 3)
 
         # Write the frame with pose and label to the output video
         out.write(frame_with_pose)
@@ -120,6 +130,7 @@ def predict_violence(video_path, model, threshold=0.5):
         send_telegram_message()
     else:
         print("Overall Prediction: Non-Violence")
+    
+    return 1 if violence_count > non_violence_count else 0, output_name
 
-# Load the trained model
-tcn_model = tf.keras.models.load_model(r'model\\SafeVision_tcn_model.h5')
+

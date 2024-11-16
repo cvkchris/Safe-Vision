@@ -1,8 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, Response
 import inceptionv3 as inception
+import tcn
 import cv2
 import numpy as np
 import threading
+from telegram import send_telegram_image, send_telegram_message
 
 app = Flask(__name__, static_folder="static")
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -11,7 +13,6 @@ app.secret_key = 'your_secret_key'  # For flash messaging
 
 # Initialize the video capture from the camera
 camera = cv2.VideoCapture(0)  # 0 is typically the default camera
-# camera = None  # Global variable to hold the camera object
 camera_lock = threading.Lock() 
 
 
@@ -50,8 +51,8 @@ def generate_frames():
             frame = buffer.tobytes()
 
             if label == "Violence":
-                inception.send_telegram_message()
-                inception.send_telegram_image(frame)
+                send_telegram_message()
+                send_telegram_image(frame)
 
             # Use Flask's streaming response
             yield (b'--frame\r\n'
@@ -78,8 +79,8 @@ ALLOWED_EXTENSIONS = ['mp4']
 def index():
     return render_template('index.html')
 
-@app.route('/upload', methods=['POST'])
-def upload_video():
+@app.route('/predict_inceptionv3', methods=['POST'])
+def predict_inception():
     if 'file' not in request.files:
         flash('No Video File Found')
         return redirect(request.url)
@@ -93,12 +94,33 @@ def upload_video():
         file_path = "static/videos/" + file.filename
         file.save(file_path)
 
-        prediction, output_name = inception.predict_violence(video_path=file_path, file_name=file.filename)
+        prediction, output_name = inception.predict_violence(video_path=file_path)
         return render_template('results.html', prediction=prediction, mimetype='video/mp4', video_name = output_name)
     else:
         flash('Invalid File Type')
         return redirect(request.url)
 
+
+@app.route('/predict_tcn', methods=['POST'])
+def predict_tcn():
+    if 'file' not in request.files:
+        flash('No Video File Found')
+        return redirect(request.url)
+
+    file = request.files['file']
+    if file.filename == '':
+        flash('No file selected')
+        return redirect(request.url)
+    
+    if file and allowed_file(file.filename):
+        file_path = "static/videos/" + file.filename
+        file.save(file_path)
+
+        prediction, output_name = tcn.predict_violence(video_path=file_path)
+        return render_template('results.html', prediction=prediction, mimetype='video/mp4', video_name = output_name)
+    else:
+        flash('Invalid File Type')
+        return redirect(request.url)
 
 @app.route('/video_feed')
 def video_feed():
