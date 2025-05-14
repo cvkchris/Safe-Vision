@@ -46,6 +46,9 @@ In high-density public environments, human surveillance can be error-prone and s
 - **VIVIT** (Vision Transformer): For spatio-temporal video modeling
 
 ---
+## Methodology 
+![image](https://github.com/user-attachments/assets/26f2dca1-aed6-4b20-95b0-7276570f28c1)
+
 
 ## 📊 Dataset
 
@@ -54,5 +57,13 @@ In high-density public environments, human surveillance can be error-prone and s
 - Balanced across multiple environmental conditions and angles
 
 ---
+## Result 
+
+https://drive.google.com/file/d/1Bh-7aT1qkCYRVfD19R0qaac2JnrREVdG/view
+https://drive.google.com/file/d/1F2tYTWcy1nyFxUnqR_4gk1MUt5YYL3Yq/view?usp=drive_link
+![image](https://github.com/user-attachments/assets/cfe25fc2-ba90-4366-af9b-4818af19fa04)
+
+
+
 
 
